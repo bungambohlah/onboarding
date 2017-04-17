@@ -12,7 +12,7 @@ module.exports = {
     },
     list(req, res) {
         var page = req.query.page;
-        var offset = (page-1) * 10;        
+        var offset = (page-1) * 10;
 
         if (page === undefined) {
             return User
@@ -61,42 +61,24 @@ module.exports = {
     },
     update(req, res) {
         return User
-            .findById(req.params.idUser, {
-                include: [{
-                    model: Phonebook,
-                    as: 'phonebookItems',
-                }],
-            })
-            .then(user => {
-                if (!user) {
-                    return res.status(404).send({
-                        message: 'User tidak ditemukan',
-                    });
-                }
-                return user
-                    .update({
-                        username: req.body.username || user.username,
-                        password: req.body.password || user.password,
-                    })
-                    .then(() => res.status(200).send(user)) // Mengirim kembalid data yang telah diubah
-                    .catch((error) => res.status(400).send(error));
-            })
+            .update(
+                {
+                    username: req.body.username || user.username,
+                    password: req.body.password || user.password
+                },
+                { where: { id: req.params.idUser }}
+            )
+            .then((user) => res.status(200).send(user)) // Mengirim kembali data yang telah diubah
             .catch((error) => res.status(400).send(error));
     },
     destroy(req, res) {
         return User
-            .findById(req.params.idUser)
-            .then(user => {
-                if (!user) {
-                    return res.status(400).send({
-                        message: "User tidak ditemukan",
-                    });
+            .destroy({
+                where: {
+                  id: req.params.idUser
                 }
-                return user
-                    .destroy()
-                    .then(() => res.status(204).send())
-                    .catch(error => res.status(400).send(error));
             })
+            .then(() => res.status(204).send())
             .catch(error => res.status(400).send(error));
     },
 };
