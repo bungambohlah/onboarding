@@ -1,7 +1,7 @@
 {
   "development": {
     "username": "postgres",
-    "password": "Rombong37",
+    "password": "postgres",
     "database": "phonebook",
     "host": "127.0.0.1",
     "port": 5432,
@@ -9,7 +9,7 @@
   },
   "test": {
     "username": "postgres",
-    "password": "Rombong37",
+    "password": "postgres",
     "database": "phonebook",
     "host": "127.0.0.1",
     "port": 5432,

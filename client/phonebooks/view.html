@@ -1,0 +1,177 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <title>Halaman Phone Book</title>
+        <!--Import Google Icon Font-->
+        <link href="http://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+        <!--Import materialize.css-->
+        <link type="text/css" rel="stylesheet" href="/assets/css/materialize.min.css" media="screen,projection"/>
+        <link type="text/css" rel="stylesheet" href="/assets/css/sweetalert.css" media="screen,projection"/>
+        <link rel="icon" href="/assets/images/favicon.ico">
+        <!--Let browser know website is optimized for mobile-->
+        <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+    </head>
+    <body>
+        <nav class="green lighten-1" role="navigation">
+          <div class="nav-wrapper container"><a id="logo-container" href="/" class="brand-logo">Onboarding</a>
+            <ul class="right hide-on-med-and-down">
+              <li class="waves-effect"><a href="/users">Pengguna</a></li>
+              <li class="waves-effect"><a href="/phonebooks">Phone Book</a></li>
+            </ul>
+
+            <ul id="nav-mobile" class="side-nav">
+                <li><a href="/users">Pengguna</a></li>
+                <li><a href="/phonebooks">Phone Book</a></li>
+            </ul>
+            <a href="#" data-activates="nav-mobile" class="button-collapse"><i class="material-icons">menu</i></a>
+          </div>
+        </nav>
+        <div class="section no-pad-bot" id="index-banner">
+          <div class="container">
+              <div class="row">
+                  <a href="/phonebooks/add" id="download-button" class="btn waves-effect waves-light green">Tambah Data Phone Book</a>
+              </div>
+              <h5 class="header orange-text"></h5>
+          </div>
+        </div>
+
+        <div class="container">
+          <div class="section">
+
+              <table class="responsive-table">
+              <thead>
+                <tr>
+                    <th>ID</th>
+                    <th>Nama Kontak</th>
+                    <th>No Telp</th>
+                    <th>Dibuat</th>
+                    <th>Diubah</th>
+                    <th class="center">#</th>
+                </tr>
+              </thead>
+              <tbody>
+              </tbody>
+            </table>
+            </div>
+
+          </div>
+        </div>
+
+        <footer class="page-footer orange">
+          <div class="container">
+            <div class="row">
+              <div class="col s12">
+                <h5 class="white-text">About Garasilabs</h5>
+                <p class="grey-text text-lighten-4">Nestled in an industrial city of Surabaya, we are a team of software developers doing what we love - writing great useful apps. Our core competencies mainly are in web and Android developments using various Open Source technologies. Inspired by Bill Hewlett and David Packard's The Rules Of The Garage - we try to emulate the environment and make it our working style and ethics. So, we name our company Garasilabs. The name is rooted in an Indonesian word "Garasi" which means "Garage". And the "Labs" part - that simply means we love to experiment and try various technologies to give the best solutions for our customers.</p>
+              </div>
+            </div>
+          </div>
+          <div class="footer-copyright">
+            <div class="container">
+                &copy; Copyright 2017 <a class="orange-text text-lighten-3" href="http://garasilabs.com">Garasilabs</a>
+            </div>
+          </div>
+        </footer>
+
+        <script type="text/javascript" src="/assets/js/jquery.js"></script>
+        <script type="text/javascript" src="/assets/js/materialize.min.js"></script>
+        <script type="text/javascript" src="/assets/js/init.js"></script>
+        <script type="text/javascript" src="/assets/js/sweetalert.min.js"></script>
+
+        <script type="text/javascript">
+        $(document).ready(function() {
+            var pathname = window.location.pathname.split("/");
+            var filename = pathname[pathname.length-1];
+            filename = parseInt(filename);
+
+            if (isNaN(filename)) {
+                window.location.href = "/";
+            } else {
+                $("#download-button").attr("href", "/phonebooks/add/" + filename);
+
+                var appendHtmlOnTable, id;
+
+                $.get( "/api/users/" + filename, function() {
+                  console.log( "success get API Users.." );
+                })
+                .done(function(data) {
+                    if (jQuery.isEmptyObject(data.phonebookItems)) {
+                        $('.responsive-table').remove();
+                        $( "<h5 class='header red-text'>Phone Book "+ data.username +" masih kosong</h5>" ).insertAfter( ".container > .section" );
+                    } else {
+                        $( "h5.header" ).text('Daftar Data Phone Book ' + data.username);
+                        $.each(data.phonebookItems, function( idx, val ) {
+                            console.log(val);
+                            appendHtmlOnTable += '<tr>';
+                            appendHtmlOnTable += '<td>' + val.id + '</td>';
+                            appendHtmlOnTable += '<td>' + val.namaKontak + '</td>';
+                            appendHtmlOnTable += '<td>' + val.noTelp + '</td>';
+                            appendHtmlOnTable += '<td>' + val.createdAt + '</td>';
+                            appendHtmlOnTable += '<td>' + val.updatedAt + '</td>';
+                            appendHtmlOnTable += '<td class="center"><a href="/phonebooks/edit/'+ filename +'" id="editData'+ val.id +'" class="btn-floating waves-effect waves-light blue"><i class="material-icons">mode_edit</i></a>';
+                            appendHtmlOnTable += '<a href="#!" id="deleteData'+ val.id +'" class="btn-floating waves-effect waves-light red"><i class="material-icons">delete_forever</i></a></td>';
+                            appendHtmlOnTable += '</tr>';
+
+                            $(document).on('click', '#deleteData' + val.id ,function() {
+                                deleteItem(filename, val.id);
+                            });
+
+                            $(document).on('click', '#editData' + val.id ,function() {
+                                editItem(val);
+                            });
+                        });
+                        $('.responsive-table > tbody').append(appendHtmlOnTable);
+                    }
+                })
+                .fail(function() {
+                    window.location.href = "/";
+                });
+            }
+
+            function editItem(val) {
+                localStorage.setItem('idPhoneBook', val.id);
+                localStorage.setItem('namaKontak', val.namaKontak);
+                localStorage.setItem('noTelp', val.noTelp);
+            };
+
+            function deleteItem(idUser, idPhonebook) {
+                swal({   title: "Anda yakin?",
+                text: "Menghapus data ini selamanya?",
+                type: "warning",
+                showCancelButton: true,
+                confirmButtonColor: "#DD6B55",
+                confirmButtonText: "Ya, hapus data ini",
+                cancelButtonText: "Tidak, jangan hapus data ini",
+                closeOnConfirm: false,
+                closeOnCancel: false },
+                function(isConfirm){
+                    if (isConfirm) {
+                        $.ajax({
+                            url: "/api/phonebooks/" + idUser + "/item/" + idPhonebook,
+                            type: 'DELETE',
+                            success: function() {
+                                swal({
+                                    title: 'Data terhapus',
+                                    text: 'Data telah sukses terhapus',
+                                    type: 'success'
+                                },
+                                function(isConfirm) {
+                                    if (isConfirm) {
+                                        window.location.href = "/phonebooks/view/" + filename;
+                                    }
+                                });
+                            },
+                            error: function() {
+                                alert('error');
+                            },
+                        });
+                    }
+                    else {
+                        swal("Dibatalkan", "Data tidak terhapus", "error");
+                    }
+                });
+            }
+        });
+        </script>
+    </body>
+</html>

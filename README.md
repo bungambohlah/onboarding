@@ -32,12 +32,37 @@ Install `postgresql` pada komputer server anda, dengan menggunakan command `apt-
 
 
 ```sh
-$ apt-get install postgresql-9.4
+$ sudo apt-get install postgresql-9.4
+```
+
+Jika tidak dapat menggunakan versi `9.4` dapat menggunakan `9.5`
+
+```sh
+$ sudo apt-get install postgresql-9.5
 ```
 
 
 Lalu konfigurasi database pada username dan password `postgresql`.
-buat database menggunakan nama `phonebook` atau lainnya.
+Dan buat database menggunakan nama `phonebook` atau lainnya.
+
+
+```sh
+$ CREATE DATABASE phonebook
+```
+
+
+Lalu migrasi model-model yang ada pada folder `/server/migrations/` ke postgres menggunakan module `pg` dari `Node Package`
+
+
+```sh
+$ npm install -g sequelize-cli
+
+
+$ sequelize db:migrate
+```
+
+
+Dengan catatan install `sequelize-cli` secara global
 
 
 ### Atur konfigurasi pada aplikasi

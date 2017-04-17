@@ -11,15 +11,34 @@ module.exports = {
         .catch(error => res.status(400).send(error));
     },
     list(req, res) {
-        return User
-            .findAll({
-                include: [{
-                    model: Phonebook,
-                    as: 'phonebookItems',
-                }],
-            })
-            .then(users => res.status(200).send(users))
-            .catch(error => res.status(400).send(error));
+        var page = req.query.page;
+        var offset = (page-1) * 10;        
+
+        if (page === undefined) {
+            return User
+                .findAll({
+                    include: [{
+                        model: Phonebook,
+                        as: 'phonebookItems',
+                    }],
+                    order: '"id" ASC'
+                })
+                .then(users => res.status(200).send(users))
+                .catch(error => res.status(400).send(error));
+        } else {
+            return User
+                .findAll({
+                    include: [{
+                        model: Phonebook,
+                        as: 'phonebookItems',
+                    }],
+                    order: '"id" ASC',
+                    offset: offset,
+                    limit: 10
+                })
+                .then(users => res.status(200).send(users))
+                .catch(error => res.status(400).send(error));
+        }
     },
     retrieve(req, res) {
         return User
@@ -28,6 +47,7 @@ module.exports = {
                     model: Phonebook,
                     as: 'phonebookItems',
                 }],
+                order: '"id" ASC',
             })
             .then(user => {
                 if (!user) {

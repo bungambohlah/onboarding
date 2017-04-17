@@ -1,0 +1,206 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <title>Halaman Pengguna</title>
+        <!--Import Google Icon Font-->
+        <link href="http://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+        <!--Import materialize.css-->
+        <link type="text/css" rel="stylesheet" href="/assets/css/materialize-pagination.min.css"/>
+        <link type="text/css" rel="stylesheet" href="/assets/css/sweetalert.css" media="screen,projection"/>
+        <link rel="icon" href="/assets/images/favicon.ico">
+        <!--Let browser know website is optimized for mobile-->
+        <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+    </head>
+    <body>
+        <nav class="green lighten-1" role="navigation">
+          <div class="nav-wrapper container"><a id="logo-container" href="./" class="brand-logo">Onboarding</a>
+            <ul class="right hide-on-med-and-down">
+              <li class="waves-effect"><a href="/users">Pengguna</a></li>
+              <li class="waves-effect"><a href="/phonebooks">Phone Book</a></li>
+            </ul>
+
+            <ul id="nav-mobile" class="side-nav">
+                <li><a href="/users">Pengguna</a></li>
+                <li><a href="/phonebooks">Phone Book</a></li>
+            </ul>
+            <a href="#" data-activates="nav-mobile" class="button-collapse"><i class="material-icons">menu</i></a>
+          </div>
+        </nav>
+        <div class="section no-pad-bot" id="index-banner">
+          <div class="container">
+              <div class="row">
+                  <a href="/users/add" id="download-button" class="btn waves-effect waves-light green">Tambah Data Pegguna</a>
+              </div>
+              <h5 class="header orange-text">Daftar Data Pengguna</h5>
+          </div>
+        </div>
+
+        <div class="container">
+          <div class="section">
+
+              <table class="responsive-table">
+              <thead>
+                <tr>
+                    <th>ID</th>
+                    <th>Username</th>
+                    <th>Password</th>
+                    <th>Dibuat</th>
+                    <th>Diubah</th>
+                    <th class="center">#</th>
+                </tr>
+              </thead>
+              <tbody>
+              </tbody>
+            </table>
+            </div>
+
+          </div>
+        </div>
+        <div id="paginate-list"></div>
+
+        <footer class="page-footer orange">
+          <div class="container">
+            <div class="row">
+              <div class="col s12">
+                <h5 class="white-text">About Garasilabs</h5>
+                <p class="grey-text text-lighten-4">Nestled in an industrial city of Surabaya, we are a team of software developers doing what we love - writing great useful apps. Our core competencies mainly are in web and Android developments using various Open Source technologies. Inspired by Bill Hewlett and David Packard's The Rules Of The Garage - we try to emulate the environment and make it our working style and ethics. So, we name our company Garasilabs. The name is rooted in an Indonesian word "Garasi" which means "Garage". And the "Labs" part - that simply means we love to experiment and try various technologies to give the best solutions for our customers.</p>
+              </div>
+            </div>
+          </div>
+          <div class="footer-copyright">
+            <div class="container">
+                &copy; Copyright 2017 <a class="orange-text text-lighten-3" href="http://garasilabs.com">Garasilabs</a>
+            </div>
+          </div>
+        </footer>
+
+        <script type="text/javascript" src="/assets/js/jquery.js"></script>
+        <script type="text/javascript" src="/assets/js/materialize-pagination.min.js"></script>
+        <script type="text/javascript" src="/assets/js/materialize.min.js"></script>
+        <script type="text/javascript" src="/assets/js/init.js"></script>
+        <script type="text/javascript" src="/assets/js/sweetalert.min.js"></script>
+
+        <script type="text/javascript">
+        $(document).ready(function() {
+            var getUrlParameter = function getUrlParameter(sParam) {
+                var sPageURL = decodeURIComponent(window.location.search.substring(1)),
+                    sURLVariables = sPageURL.split('&'),
+                    sParameterName,
+                    i;
+
+                for (i = 0; i < sURLVariables.length; i++) {
+                    sParameterName = sURLVariables[i].split('=');
+
+                    if (sParameterName[0] === sParam) {
+                        return sParameterName[1] === undefined ? true : sParameterName[1];
+                    }
+                }
+            };
+
+            var appendHtmlOnTable, id;
+
+            var page = parseInt(getUrlParameter('page')) > 0 ? parseInt(getUrlParameter('page')) : 1;
+
+            $.get( "/api/users/?page=" + page, function() {
+              console.log( "success get API Users.." );
+            })
+            .done(function(data) {
+                console.log(data);
+                if (jQuery.isEmptyObject(data)) {
+                    $('.responsive-table').remove();
+                    $('h5.header').remove();
+                    $('div#paginate-list').remove();
+                    $( "<h5 class='header red-text'>Data User masih kosong</h5>" ).insertAfter( ".container > .section" );
+                    if (page > 1) {
+                      window.location.href = "/";
+                    }
+                } else {
+                    $.each(data, function( idx, val ) {
+                        appendHtmlOnTable += '<tr>';
+                        appendHtmlOnTable += '<td>' + val.id + '</td>';
+                        appendHtmlOnTable += '<td>' + val.username + '</td>';
+                        appendHtmlOnTable += '<td>' + val.password + '</td>';
+                        appendHtmlOnTable += '<td>' + val.createdAt + '</td>';
+                        appendHtmlOnTable += '<td>' + val.updatedAt + '</td>';
+                        appendHtmlOnTable += '<td class="center"><a href="/phonebooks/view/'+ val.id +'" class="btn-floating waves-effect waves-light light-green"><i class="material-icons">view_list</i></a>';
+                        appendHtmlOnTable += '<a href="/users/edit/'+ val.id +'" class="btn-floating waves-effect waves-light blue"><i class="material-icons">mode_edit</i></a>';
+                        appendHtmlOnTable += '<a href="#!" id="deleteData'+ val.id +'" class="btn-floating waves-effect waves-light red"><i class="material-icons">delete_forever</i></a></td>';
+                        appendHtmlOnTable += '</tr>';
+
+                        $(document).on('click', '#deleteData' + val.id ,function() {
+                            deleteItem(val.id);
+                        });
+                    });
+                    $('.responsive-table > tbody').append(appendHtmlOnTable);
+                }
+            })
+            .fail(function() {
+                alert( "error to get data users" );
+            });
+
+            function deleteItem(id) {
+                swal({   title: "Anda yakin?",
+                text: "Menghapus data ini selamanya?",
+                type: "warning",
+                showCancelButton: true,
+                confirmButtonColor: "#DD6B55",
+                confirmButtonText: "Ya, hapus data ini",
+                cancelButtonText: "Tidak, jangan hapus data ini",
+                closeOnConfirm: false,
+                closeOnCancel: false },
+                function(isConfirm){
+                    if (isConfirm) {
+                        $.ajax({
+                            url: "/api/users/" + id,
+                            type: 'DELETE',
+                            success: function() {
+                                swal({
+                                    title: 'Data terhapus',
+                                    text: 'Data telah sukses terhapus',
+                                    type: 'success'
+                                },
+                                function(isConfirm) {
+                                    if (isConfirm) {
+                                            window.location.href = "/users";
+                                    }
+                                });
+                            },
+                            error: function() {
+                                alert('error');
+                            },
+                        });
+                    }
+                    else {
+                        swal("Dibatalkan", "Data tidak terhapus", "error");
+                    }
+                });
+            }
+
+            $.get( "/api/users/", function() {
+              console.log( "success get API Count Users.." );
+            })
+            .done(function(data) {
+                var count = Math.ceil(data.length / 10);
+
+                $('#paginate-list').materializePagination({
+                    align: 'center',
+                    lastPage:  count,
+                    firstPage:  1,
+                    urlParameter: 'page',
+                    useUrlParameter: true,
+                    onClickCallback: function(requestedPage){
+                        console.log('Requested page is '+ requestedPage);
+                    }
+                });
+
+                $(document).on('click', '#paginate-list', function() {
+                    location.reload();
+                });
+            })
+            .fail(function() {
+                alert( "error to get count of data users" );
+            });
+        });
+        </script>
+    </body>
+</html>

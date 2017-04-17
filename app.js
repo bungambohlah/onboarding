@@ -12,6 +12,10 @@ app.use(logger('dev'));
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({extended: false}));
 
+app.use(express.static('client'));
+
+app.use('/assets', express.static('client/assets'));
+
 // Require routes ke aplikasi utama
 require('./server/routes')(app);
 

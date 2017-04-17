@@ -2,9 +2,9 @@ const usersController = require('../controllers').users;
 const phonebooksController = require('../controllers').phonebooks;
 
 module.exports = (app) => {
-    app.get('/', (req, res) => res.status(200).send('hello world!'));
+
     app.get('/api', (req, res) => res.status(200).send({
-        message: 'Users API'
+        message: 'API backend'
     }));
 
     // Create data users
@@ -18,7 +18,6 @@ module.exports = (app) => {
     // Delete specified data users
     app.delete('/api/users/:idUser', usersController.destroy);
 
-
     app.post('/api/phonebooks/:userId', phonebooksController.create);
     app.put('/api/phonebooks/:userId/item/:idPhonebook', phonebooksController.update);
     app.delete('/api/phonebooks/:userId/item/:idPhonebook', phonebooksController.destroy);
@@ -28,4 +27,25 @@ module.exports = (app) => {
         res.status(405).send({
             message: "Method not Allowed",
     }));
+
+    app.get('/', (req, res) => {
+        res.status(200).sendFile('users/index.html', {root: 'client'});
+    });
+
+    app.get('/:level1', (req, res) => {
+        var level1 = req.params.level1;
+        res.status(200).sendFile(level1 + '/index.html');
+    });
+
+    app.get('/:level1/:level2', (req, res) => {
+        var level1 = req.params.level1;
+        var level2 = req.params.level2;
+        res.status(200).sendFile(level1 + '/' + level2 + '.html', {root: 'client'});
+    });
+
+    app.get('/:level1/:level2/:userId', (req, res) => {
+        var level1 = req.params.level1;
+        var level2 = req.params.level2;
+        res.status(200).sendFile(level1 + '/' + level2 + '.html', {root: 'client'});
+    });
 }

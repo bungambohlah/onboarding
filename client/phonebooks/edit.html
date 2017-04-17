@@ -1,0 +1,190 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <title>Halaman Phone Book</title>
+        <!--Import Google Icon Font-->
+        <link href="http://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+        <!--Import materialize.css-->
+        <link type="text/css" rel="stylesheet" href="/assets/css/materialize.min.css" media="screen,projection"/>
+        <link type="text/css" rel="stylesheet" href="/assets/css/validate.css" media="screen,projection"/>
+        <link rel="icon" href="/assets/images/favicon.ico">
+        <!--Let browser know website is optimized for mobile-->
+        <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+    </head>
+    <body>
+        <nav class="green lighten-1" role="navigation">
+          <div class="nav-wrapper container">
+            <a id="logo-container" href="./" class="brand-logo">Onboarding</a>
+            <ul class="right hide-on-med-and-down">
+              <li class="waves-effect"><a href="/users">Pengguna</a></li>
+              <li class="waves-effect"><a href="/phonebooks">Phone Book</a></li>
+            </ul>
+
+            <ul id="nav-mobile" class="side-nav">
+                <li><a href="/users">Pengguna</a></li>
+                <li><a href="/phonebooks">Phone Book</a></li>
+            </ul>
+            <a href="/phonebooks/view/" id="back-mobile" data-activates="nav-mobile" class="button-collapse"><i class="material-icons">keyboard_backspace</i></a>
+          </div>
+        </nav>
+        <div class="section no-pad-bot" id="index-banner">
+          <div class="container">
+              <h5 class="header orange-text">Form Data Phone Book</h5>
+          </div>
+        </div>
+
+        <div class="container">
+          <div class="section">
+              <div class="row">
+                <form id="formPhonebook" class="col s12 formPhonebook">
+                  <div class="row">
+                    <div class="input-field col s12">
+                      <label for="namaKontak">Nama Kontak</label>
+                      <input id="namaKontak" name="namaKontak" type="text" data-error=".errorTxt1">
+                      <div class="errorTxt1"></div>
+                    </div>
+                  </div>
+                  <div class="row">
+                    <div class="input-field col s12">
+                      <span class="prefix"><h5  >+62</h5></span>
+                      <label for="noTelp">Nomor Telepon</label>
+                      <input id="noTelp" name="noTelp" type="tel" data-error=".errorTxt2">
+                      <div class="errorTxt2"></div>
+                    </div>
+                  </div>
+                  <div class="row">
+                      <div class="input-field">
+                          <div class="col s6">
+                              <a href="/phonebooks/view/" class="btn-large waves-effect waves-light red" id="back" name="back">
+                                  <i class="material-icons left">keyboard_backspace</i> Back
+                              </a>
+                          </div>
+                          <div class="col s6">
+                              <button class="btn-large waves-effect waves-light right submit" type="submit" name="action">Submit
+                                  <i class="material-icons right">send</i>
+                              </button>
+                          </div>
+                      </div>
+                  </div>
+                </form>
+              </div>
+          </div>
+
+          </div>
+        </div>
+
+        <footer class="page-footer orange">
+          <div class="container">
+            <div class="row">
+              <div class="col s12">
+                <h5 class="white-text">About Garasilabs</h5>
+                <p class="grey-text text-lighten-4">Nestled in an industrial city of Surabaya, we are a team of software developers doing what we love - writing great useful apps. Our core competencies mainly are in web and Android developments using various Open Source technologies. Inspired by Bill Hewlett and David Packard's The Rules Of The Garage - we try to emulate the environment and make it our working style and ethics. So, we name our company Garasilabs. The name is rooted in an Indonesian word "Garasi" which means "Garage". And the "Labs" part - that simply means we love to experiment and try various technologies to give the best solutions for our customers.</p>
+              </div>
+            </div>
+          </div>
+          <div class="footer-copyright">
+            <div class="container">
+                &copy; Copyright 2017 <a class="orange-text text-lighten-3" href="http://garasilabs.com">Garasilabs</a>
+            </div>
+          </div>
+        </footer>
+
+        <script type="text/javascript" src="/assets/js/jquery.js"></script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery-validate/1.16.0/jquery.validate.min.js"></script>
+        <script type="text/javascript" src="/assets/js/materialize.min.js"></script>
+        <!-- <script type="text/javascript" src="/assets/js/init.js"></script> -->
+
+        <script type="text/javascript">
+
+        $(document).ready(function() {
+            var pathname = window.location.pathname.split("/");
+            var filename = pathname[pathname.length-1];
+            filename = parseInt(filename);
+
+            var idPhonebook = localStorage.getItem('idPhoneBook');
+            console.log(idPhonebook);
+
+            if (isNaN(filename) || idPhonebook == null) {
+                window.location.href = "/";
+            } else {
+                var namaKontak = localStorage.getItem('namaKontak');
+                var noTelp = localStorage.getItem('noTelp').replace(/^\+62/, '');
+
+                $('#namaKontak').val(namaKontak);
+                $('#noTelp').val(noTelp);
+                Materialize.updateTextFields();
+
+                $("#back").attr("href", "/phonebooks/view/" + filename);
+                $("#back-mobile").attr("href", "/phonebooks/view/" + filename);
+
+                $.validator.addMethod(
+                    "regex",
+                    function(value, element, regexp) {
+                        var re = new RegExp(regexp);
+                        return this.optional(element) || re.test(value);
+                    },
+                    "Please check your input."
+                );
+
+                $("#formPhonebook").validate({
+                    rules: {
+                        namaKontak: {
+                            required: true,
+                        },
+                        noTelp: {
+                            required: true,
+                            minlength: 10,
+                            maxlength: 11,
+                            regex: "[0-9]+",
+                        },
+                    },
+                    messages: {
+                        namaKontak: {
+                            required: "Nama Kontak tidak boleh kosong.",
+                        },
+                        noTelp: {
+                            required: "Nomor Telepon tidak boleh kosong.",
+                            minlength: "Masukkan minimal 10 karakter.",
+                            maxlength: "Masukkan maksimal 11 karakter.",
+                            regex: "Input yang anda masukkan tidak sesuai.",
+                        },
+                    },
+                    errorElement : 'div',
+                    errorPlacement: function(error, element) {
+                        var placement = $(element).data('error');
+                        if (placement) {
+                            $(placement).append(error);
+                        } else {
+                            error.insertAfter(element);
+                        }
+                    },
+                    submitHandler: function(form) {
+                        var dataForm = $('#formPhonebook').serializeArray();
+
+                        for (index = 0; index < dataForm.length; ++index) {
+                            if (dataForm[index].name == "noTelp") {
+                                dataForm[index].value = '+62' + dataForm[index].value;
+                                break;
+                            }
+                        }
+
+                        $.ajax({
+                            url: "/api/phonebooks/" + filename + "/item/" + idPhonebook,
+                            type: 'PUT',
+                            data: $.param(dataForm),
+                            contentType: 'application/x-www-form-urlencoded',
+                            success: function() {
+                                window.location.href = "/phonebooks/view/" + filename;
+                                localStorage.clear();
+                            },
+                            error: function() {
+                                alert('error');
+                            },
+                        });
+                    }
+                });
+            }
+        });
+        </script>
+    </body>
+</html>
